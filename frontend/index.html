@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>AI Procurement System</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f3f4f6;
+  padding:25px;
+  color:#111827;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:white;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.08);
+}
+
+h1{
+  text-align:center;
+  color:#2563eb;
+  margin-bottom:12px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#6b7280;
+  margin-bottom:30px;
+  line-height:1.6;
+}
+
+textarea{
+  width:100%;
+  border:1px solid #d1d5db;
+  border-radius:14px;
+  padding:16px;
+  font-size:15px;
+  line-height:1.7;
+  resize:vertical;
+  transition:0.3s;
+}
+
+textarea:focus,
+input:focus{
+  outline:none;
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+
+#promptInput{
+  min-height:260px;
+}
+
+.button-group{
+  display:flex;
+  gap:15px;
+  margin-top:20px;
+}
+
+button{
+  flex:1;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.generate-btn{
+  background:#2563eb;
+  color:white;
+}
+
+.generate-btn:hover{
+  background:#1d4ed8;
+}
+
+.reset-btn{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.reset-btn:hover{
+  background:#d1d5db;
+}
+
+button:disabled{
+  background:gray;
+  cursor:not-allowed;
+}
+
+.loader{
+  display:none;
+  margin-top:25px;
+  text-align:center;
+  color:#2563eb;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.error{
+  display:none;
+  margin-top:20px;
+  background:#fee2e2;
+  color:#dc2626;
+  padding:16px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+.result{
+  display:none;
+  margin-top:35px;
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.form-group{
+  margin-bottom:20px;
+}
+
+label{
+  display:block;
+  margin-bottom:8px;
+  font-weight:bold;
+}
+
+input,
+.output{
+  width:100%;
+  padding:12px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  font-size:14px;
+}
+
+.output{
+  min-height:140px;
+}
+
+.section-box{
+  margin-top:25px;
+  background:#f9fafb;
+  padding:22px;
+  border-radius:14px;
+}
+
+.section-title{
+  color:#2563eb;
+  margin-bottom:15px;
+}
+
+ul{
+  margin-left:20px;
+}
+
+li{
+  margin-bottom:10px;
+  line-height:1.7;
+}
+
+.summary{
+  margin-top:25px;
+  background:#eff6ff;
+  border-left:5px solid #2563eb;
+  padding:22px;
+  border-radius:14px;
+  line-height:1.8;
+}
+
+.footer{
+  text-align:center;
+  margin-top:30px;
+  color:#6b7280;
+  font-size:14px;
+}
+
+.source-tag{
+  margin-top:20px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  padding:12px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+@media(max-width:768px){
+
+  body{
+    padding:15px;
+  }
+
+  .container{
+    padding:20px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .button-group{
+    flex-direction:column;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI Training Procurement System</h1>
+
+<p class="subtitle">
+Generate procurement-ready training requirement forms using AI
+</p>
+
+<textarea
+  id="promptInput"
+  placeholder="Enter training requirement here..."
+></textarea>
+
+<div class="button-group">
+
+<button
+  class="generate-btn"
+  id="generateBtn"
+  onclick="generateForm()"
+>
+Generate AI Procurement Form
+</button>
+
+<button
+  class="reset-btn"
+  onclick="resetForm()"
+>
+Reset
+</button>
+
+</div>
+
+<div
+  class="loader"
+  id="loader"
+>
+Generating AI Response...
+</div>
+
+<div
+  class="error"
+  id="errorBox"
+></div>
+
+<div
+  class="result"
+  id="resultBox"
+>
+
+<div
+  class="source-tag"
+  id="sourceTag"
+>
+Source: Manual Input
+</div>
+
+<div class="form-grid">
+
+<div class="form-group">
+<label>Course Name</label>
+<input type="text" id="course">
+</div>
+
+<div class="form-group">
+<label>Delivery Method</label>
+<input type="text" id="delivery">
+</div>
+
+<div class="form-group">
+<label>Training Level</label>
+<input type="text" id="level">
+</div>
+
+<div class="form-group">
+<label>Participants</label>
+<input type="text" id="participants">
+</div>
+
+<div class="form-group">
+<label>Audience Type</label>
+<input type="text" id="audience">
+</div>
+
+<div class="form-group">
+<label>Duration</label>
+<input type="text" id="duration">
+</div>
+
+<div class="form-group">
+<label>Tentative Timeline</label>
+<input type="text" id="timeline">
+</div>
+
+<div class="form-group">
+<label>Location</label>
+<input type="text" id="location">
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Training Objectives</label>
+
+<textarea
+  class="output"
+  id="objectives"
+></textarea>
+
+</div>
+
+<div class="section-box">
+
+<h3 class="section-title">
+Recommended Modules
+</h3>
+
+<ul id="modules"></ul>
+
+</div>
+
+<div class="section-box">
+
+<h3 class="section-title">
+Vendor Requirements
+</h3>
+
+<ul id="requirements"></ul>
+
+</div>
+
+<div class="summary">
+
+<h3>
+AI Generated Summary
+</h3>
+
+<p id="summaryText"></p>
+
+</div>
+
+<div class="footer">
+AI Procurement Assistant • Powered by Groq AI
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+
+const API_URL =
+  "http://127.0.0.1:3000/generate";
+
+
+// SOCKET CONNECTION
+
+const socket =
+  io("http://127.0.0.1:3000");
+
+
+// SOCKET RECEIVE
+
+socket.on(
+  "newRequirement",
+  (data) => {
+
+    fillForm(data);
+
+  }
+);
+
+
+// SAFE LIST RENDER
+
+function renderList(elementId, items){
+
+  const ul =
+    document.getElementById(elementId);
+
+  ul.innerHTML = "";
+
+  if(
+    !Array.isArray(items) ||
+    items.length === 0
+  ){
+
+    ul.innerHTML =
+      "<li>No data available</li>";
+
+    return;
+
+  }
+
+  items.forEach(item => {
+
+    const li =
+      document.createElement("li");
+
+    li.textContent = item;
+
+    ul.appendChild(li);
+
+  });
+
+}
+
+
+// RESET FORM
+
+function resetForm(){
+
+  document.getElementById(
+    "promptInput"
+  ).value = "";
+
+  document.getElementById(
+    "resultBox"
+  ).style.display = "none";
+
+  document.getElementById(
+    "errorBox"
+  ).style.display = "none";
+
+}
+
+
+// FILL FORM
+
+function fillForm(data){
+
+  document.getElementById(
+    "resultBox"
+  ).style.display =
+    "block";
+
+  document.getElementById(
+    "sourceTag"
+  ).innerHTML =
+    `Source: ${data.source || "Manual Input"}`;
+
+  document.getElementById("course")
+    .value =
+    data.course || "";
+
+  document.getElementById("delivery")
+    .value =
+    data.delivery || "";
+
+  document.getElementById("level")
+    .value =
+    data.trainingLevel || "";
+
+  document.getElementById("participants")
+    .value =
+    data.participants || "";
+
+  document.getElementById("audience")
+    .value =
+    data.audience || "";
+
+  document.getElementById("duration")
+    .value =
+    data.duration || "";
+
+  document.getElementById("timeline")
+    .value =
+    data.timeline || "";
+
+  document.getElementById("location")
+    .value =
+    data.location || "";
+
+  document.getElementById("objectives")
+    .value =
+    data.objectives || "";
+
+  renderList(
+    "modules",
+    data.modules
+  );
+
+  renderList(
+    "requirements",
+    data.requirements
+  );
+
+  document.getElementById(
+    "summaryText"
+  ).textContent =
+    data.summary || "";
+
+}
+
+
+// GENERATE FUNCTION
+
+async function generateForm(){
+
+  const prompt =
+    document.getElementById(
+      "promptInput"
+    ).value.trim();
+
+  const loader =
+    document.getElementById(
+      "loader"
+    );
+
+  const resultBox =
+    document.getElementById(
+      "resultBox"
+    );
+
+  const errorBox =
+    document.getElementById(
+      "errorBox"
+    );
+
+  const button =
+    document.getElementById(
+      "generateBtn"
+    );
+
+  // VALIDATION
+
+  if(!prompt){
+
+    alert(
+      "Please enter training requirement"
+    );
+
+    return;
+
+  }
+
+  // RESET UI
+
+  loader.style.display =
+    "block";
+
+  resultBox.style.display =
+    "none";
+
+  errorBox.style.display =
+    "none";
+
+  errorBox.innerHTML = "";
+
+  button.disabled = true;
+
+  button.innerHTML =
+    "Generating...";
+
+  try{
+
+    const response =
+      await fetch(API_URL, {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          prompt
+        })
+
+      });
+
+    const data =
+      await response.json();
+
+    loader.style.display =
+      "none";
+
+    button.disabled = false;
+
+    button.innerHTML =
+      "Generate AI Procurement Form";
+
+    if(
+      !response.ok ||
+      data.error
+    ){
+
+      throw new Error(
+        data.error ||
+        "Backend Server Error"
+      );
+
+    }
+
+    data.source =
+      "Manual Input";
+
+    fillForm(data);
+
+  }
+
+  catch(error){
+
+    console.log(error);
+
+    loader.style.display =
+      "none";
+
+    button.disabled = false;
+
+    button.innerHTML =
+      "Generate AI Procurement Form";
+
+    errorBox.style.display =
+      "block";
+
+    errorBox.innerHTML = `
+      ${error.message}
+      <br><br>
+      Make sure backend server is running on port 3000.
+    `;
+
+  }
+
+}
+
+</script>
+
+</body>
+
+</html>
